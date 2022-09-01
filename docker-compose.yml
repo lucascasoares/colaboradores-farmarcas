@@ -1,0 +1,44 @@
+# colaboradores-farmarcas
+
+version: "3.6"
+
+services:
+  # Nginx Web Application
+  webserver:
+    container_name: colaboradores-farmarcas-webserver
+    image: nginx:alpine
+    working_dir: /var/www/colaboradores-farmarcas
+    volumes:
+      - .:/var/www/colaboradores-farmarcas
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+    environment:
+      - NGINX_HOST=farmarcas.test
+
+  # PHP-FPM
+  php-fpm:
+    container_name: colaboradores-farmarcas-php-fpm
+    build: docker/php-fpm
+    working_dir: /var/www/colaboradores-farmarcas
+    volumes:
+      - .:/var/www/colaboradores-farmarcas
+      - ./docker/php-fpm/php-ini-overrides.ini:/etc/php/8.1/fpm/conf.d/99-overrides.ini
+
+  # PostgreSQL
+  postgres:
+    container_name: colaboradores-farmarcas-postgres
+    image: postgres:14.4-alpine3.16
+    volumes:
+      - colaboradores-farmarcas-postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=colaboradores-farmarcas
+      - POSTGRES_PASSWORD=colaboradores-farmarcas
+      - POSTGRES_DB=colaboradores-farmarcas
+    ports:
+      - "5432:5432"
+
+volumes:
+  # postgres-data
+  colaboradores-farmarcas-postgres-data:
+    driver: local
